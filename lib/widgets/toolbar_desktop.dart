@@ -1,10 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../models/shape.dart';
 import '../providers/drawing_state.dart';
-import 'color_picker_button.dart';
 
-/// Desktop toolbar (vertical sidebar)
+/// Desktop toolbar (floating vertical sidebar)
 class ToolbarDesktop extends StatelessWidget {
   final VoidCallback onSave;
   final VoidCallback onLoad;
@@ -23,189 +24,115 @@ class ToolbarDesktop extends StatelessWidget {
   Widget build(BuildContext context) {
     final drawingState = context.watch<DrawingState>();
 
-    return Container(
-      width: 80,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border(
-          right: BorderSide(color: Theme.of(context).dividerColor, width: 1),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: 72,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(context).dividerColor.withOpacity(0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildToolButton(
+                context,
+                icon: LucideIcons.mousePointer2,
+                label: 'Select',
+                isSelected: drawingState.currentTool == ShapeType.select,
+                onTap: () => drawingState.setTool(ShapeType.select),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Divider(height: 20),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.pencil,
+                      label: 'Pencil',
+                      isSelected: drawingState.currentTool == ShapeType.pencil,
+                      onTap: () => drawingState.setTool(ShapeType.pencil),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.dot,
+                      label: 'Point',
+                      isSelected: drawingState.currentTool == ShapeType.point,
+                      onTap: () => drawingState.setTool(ShapeType.point),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.minus,
+                      label: 'Line',
+                      isSelected: drawingState.currentTool == ShapeType.line,
+                      onTap: () => drawingState.setTool(ShapeType.line),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.square,
+                      label: 'Square',
+                      isSelected: drawingState.currentTool == ShapeType.square,
+                      onTap: () => drawingState.setTool(ShapeType.square),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.rectangleHorizontal,
+                      label: 'Rectangle',
+                      isSelected:
+                          drawingState.currentTool == ShapeType.rectangle,
+                      onTap: () => drawingState.setTool(ShapeType.rectangle),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.circle,
+                      label: 'Circle',
+                      isSelected: drawingState.currentTool == ShapeType.circle,
+                      onTap: () => drawingState.setTool(ShapeType.circle),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons
+                          .orbit, // Changed from circleDashed to orbit for Ellipse
+                      label: 'Ellipse',
+                      isSelected: drawingState.currentTool == ShapeType.ellipse,
+                      onTap: () => drawingState.setTool(ShapeType.ellipse),
+                    ),
+                    _buildToolButton(
+                      context,
+                      icon: LucideIcons.paintBucket,
+                      label: 'Fill',
+                      isSelected:
+                          drawingState.currentTool == ShapeType.paintBucket,
+                      onTap: () => drawingState.setTool(ShapeType.paintBucket),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Divider(height: 20),
+              ),
+              _buildToolButton(
+                context,
+                icon: LucideIcons.trash2,
+                label: 'Clear',
+                isSelected: false,
+                onTap: onClear,
+                color: Colors.redAccent,
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
-      ),
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: [
-          // Tool selection buttons
-          _buildToolButton(
-            context,
-            icon: Icons.touch_app,
-            label: 'Select',
-            isSelected: drawingState.currentTool == ShapeType.select,
-            onTap: () => drawingState.setTool(ShapeType.select),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.brush,
-            label: 'Pencil',
-            isSelected: drawingState.currentTool == ShapeType.pencil,
-            onTap: () => drawingState.setTool(ShapeType.pencil),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.fiber_manual_record,
-            label: 'Point',
-            isSelected: drawingState.currentTool == ShapeType.point,
-            onTap: () => drawingState.setTool(ShapeType.point),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.show_chart,
-            label: 'Line',
-            isSelected: drawingState.currentTool == ShapeType.line,
-            onTap: () => drawingState.setTool(ShapeType.line),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.radio_button_unchecked,
-            label: 'Circle',
-            isSelected: drawingState.currentTool == ShapeType.circle,
-            onTap: () => drawingState.setTool(ShapeType.circle),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.vignette_outlined,
-            label: 'Ellipse',
-            isSelected: drawingState.currentTool == ShapeType.ellipse,
-            onTap: () => drawingState.setTool(ShapeType.ellipse),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.crop_square,
-            label: 'Square',
-            isSelected: drawingState.currentTool == ShapeType.square,
-            onTap: () => drawingState.setTool(ShapeType.square),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.rectangle_outlined,
-            label: 'Rectangle',
-            isSelected: drawingState.currentTool == ShapeType.rectangle,
-            onTap: () => drawingState.setTool(ShapeType.rectangle),
-          ),
-          _buildToolButton(
-            context,
-            icon: Icons.format_color_fill,
-            label: 'Fill',
-            isSelected: drawingState.currentTool == ShapeType.paintBucket,
-            onTap: () => drawingState.setTool(ShapeType.paintBucket),
-          ),
-
-          const Divider(height: 24),
-
-          // Color pickers
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              children: [
-                ColorPickerButton(
-                  currentColor: drawingState.strokeColor,
-                  label: 'Stroke',
-                  onColorChanged: (color) => drawingState.setStrokeColor(color),
-                ),
-                const SizedBox(height: 12),
-                ColorPickerButton(
-                  currentColor: drawingState.fillColor,
-                  label: 'Fill',
-                  onColorChanged: (color) => drawingState.setFillColor(color),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 24),
-
-          // Stroke width slider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              children: [
-                Text('Width', style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 4),
-                Text(
-                  drawingState.strokeWidth.toStringAsFixed(1),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                RotatedBox(
-                  quarterTurns: 3,
-                  child: Slider(
-                    value: drawingState.strokeWidth,
-                    min: 1.0,
-                    max: 20.0,
-                    divisions: 38,
-                    onChanged: (value) => drawingState.setStrokeWidth(value),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 24),
-
-          // Action buttons
-          _buildActionButton(
-            context,
-            icon: Icons.undo,
-            label: 'Undo',
-            enabled: drawingState.canUndo,
-            onTap: drawingState.undo,
-          ),
-          _buildActionButton(
-            context,
-            icon: Icons.redo,
-            label: 'Redo',
-            enabled: drawingState.canRedo,
-            onTap: drawingState.redo,
-          ),
-          _buildActionButton(
-            context,
-            icon: Icons.delete,
-            label: 'Delete',
-            enabled: drawingState.hasSelection,
-            onTap: drawingState.deleteSelected,
-          ),
-          _buildActionButton(
-            context,
-            icon: Icons.clear_all,
-            label: 'Clear',
-            enabled: drawingState.shapes.isNotEmpty,
-            onTap: () => _showClearConfirmation(context, onClear),
-          ),
-
-          const Divider(height: 24),
-
-          // File operations
-          _buildActionButton(
-            context,
-            icon: Icons.save,
-            label: 'Save',
-            enabled: drawingState.shapes.isNotEmpty,
-            onTap: onSave,
-          ),
-          _buildActionButton(
-            context,
-            icon: Icons.folder_open,
-            label: 'Load',
-            onTap: onLoad,
-          ),
-          _buildActionButton(
-            context,
-            icon: Icons.image,
-            label: 'Export',
-            enabled: drawingState.shapes.isNotEmpty,
-            onTap: onExport,
-          ),
-        ],
       ),
     );
   }
@@ -216,88 +143,36 @@ class ToolbarDesktop extends StatelessWidget {
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
+    Color? color,
   }) {
+    final theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Tooltip(
         message: label,
-        child: Material(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              height: 56,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.transparent,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 52,
+            width: 52,
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? (color ?? theme.colorScheme.primary).withOpacity(0.15)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: isSelected
+                  ? (color ?? theme.colorScheme.primary)
+                  : (color ?? theme.colorScheme.onSurface.withOpacity(0.6)),
+              size: 22,
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool enabled = true,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Tooltip(
-        message: label,
-        child: IconButton(
-          onPressed: enabled ? onTap : null,
-          icon: Icon(icon),
-          iconSize: 28,
-        ),
-      ),
-    );
-  }
-
-  void _showClearConfirmation(BuildContext context, VoidCallback onConfirm) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Canvas'),
-        content: const Text(
-          'Are you sure you want to clear all shapes? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              onConfirm();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Clear'),
-          ),
-        ],
       ),
     );
   }

@@ -9,6 +9,8 @@ class CanvasPainter extends CustomPainter {
   final int? activeHandleIndex;
   final bool isDragging;
   final Offset? cursorPosition;
+  final bool showGrid;
+  final Color gridColor;
 
   CanvasPainter({
     required this.shapes,
@@ -17,10 +19,16 @@ class CanvasPainter extends CustomPainter {
     this.activeHandleIndex,
     this.isDragging = false,
     this.cursorPosition,
+    this.showGrid = true,
+    this.gridColor = const Color(0x1A000000),
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (showGrid) {
+      _drawGrid(canvas, size);
+    }
+
     // Draw all completed shapes
     for (final shape in shapes) {
       shape.draw(canvas);
@@ -41,6 +49,22 @@ class CanvasPainter extends CustomPainter {
     // Draw overlay information during drag operations
     if (isDragging && cursorPosition != null && selectedShape != null) {
       _drawDragOverlay(canvas, selectedShape!);
+    }
+  }
+
+  void _drawGrid(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = gridColor
+      ..strokeWidth = 0.5;
+
+    const double spacing = 20.0;
+
+    for (double i = 0; i < size.width; i += spacing) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+
+    for (double i = 0; i < size.height; i += spacing) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
     }
   }
 

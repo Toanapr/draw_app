@@ -358,8 +358,8 @@ class CircleShape extends Shape {
   @override
   bool containsPoint(Offset point) {
     final distance = (point - startPoint).distance;
-    // Check if point is near the circle's perimeter or inside if filled
-    if (fillColor.alpha > 0 && distance <= radius) {
+    // Check if point is inside the circle (regardless of fill) or near the perimeter
+    if (distance <= radius) {
       return true;
     }
     return (distance - radius).abs() <= strokeWidth + 5;
@@ -444,8 +444,8 @@ class EllipseShape extends Shape {
     final ny = (point.dy - center.dy) / ry;
     final distanceFromCenter = sqrt(nx * nx + ny * ny);
 
-    // Check if point is inside ellipse (for filled) or near perimeter (for stroke)
-    if (fillColor.alpha > 0 && distanceFromCenter <= 1.0) {
+    // Check if point is inside ellipse (regardless of fill) or near perimeter
+    if (distanceFromCenter <= 1.0) {
       return true;
     }
     return (distanceFromCenter - 1.0).abs() <= (strokeWidth + 5) / min(rx, ry);
@@ -527,7 +527,8 @@ class SquareShape extends Shape {
     final inflated = rect.inflate(strokeWidth + 5);
     if (!inflated.contains(point)) return false;
 
-    if (fillColor.alpha > 0 && rect.contains(point)) {
+    // Check if point is inside the square (regardless of fill)
+    if (rect.contains(point)) {
       return true;
     }
 
@@ -604,7 +605,8 @@ class RectangleShape extends Shape {
     final inflated = rect.inflate(strokeWidth + 5);
     if (!inflated.contains(point)) return false;
 
-    if (fillColor.alpha > 0 && rect.contains(point)) {
+    // Check if point is inside the rectangle (regardless of fill)
+    if (rect.contains(point)) {
       return true;
     }
 

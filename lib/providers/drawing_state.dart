@@ -25,6 +25,9 @@ class DrawingState extends ChangeNotifier {
   // Currently selected shape
   Shape? _selectedShape;
 
+  // Grid visibility
+  bool _showGrid = true;
+
   // Getters
   List<Shape> get shapes => List.unmodifiable(_shapes);
   List<Shape> get redoStack => List.unmodifiable(_redoStack);
@@ -34,12 +37,18 @@ class DrawingState extends ChangeNotifier {
   double get strokeWidth => _strokeWidth;
   Shape? get previewShape => _previewShape;
   Shape? get selectedShape => _selectedShape;
+  bool get showGrid => _showGrid;
 
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
   bool get hasSelection => _selectedShape != null;
 
   // Setters
+  void toggleGrid() {
+    _showGrid = !_showGrid;
+    notifyListeners();
+  }
+
   void setTool(ShapeType tool) {
     _currentTool = tool;
     // Deselect when switching tools (except to Select tool)

@@ -62,6 +62,10 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
               activeHandleIndex: _activeHandleIndex,
               isDragging: _isDragging,
               cursorPosition: _dragStartOffset,
+              showGrid: drawingState.showGrid,
+              gridColor: Theme.of(context).brightness == Brightness.light
+                  ? Colors.black.withOpacity(0.05)
+                  : Colors.white.withOpacity(0.05),
             ),
             child: const SizedBox.expand(),
           ),

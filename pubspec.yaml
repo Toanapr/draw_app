@@ -58,6 +58,8 @@ dependencies:
   
   # Device info to check Android version
   device_info_plus: ^11.2.0
+  lucide_icons: ^0.257.0
+  google_fonts: ^6.3.3
 
 dev_dependencies:
   flutter_test:
