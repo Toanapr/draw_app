@@ -295,7 +295,10 @@ class CircleShape extends Shape {
 
   @override
   Rect getBounds() {
-    return Rect.fromCircle(center: startPoint, radius: radius + strokeWidth);
+    return Rect.fromCircle(
+      center: startPoint,
+      radius: radius,
+    ).inflate(strokeWidth);
   }
 
   @override

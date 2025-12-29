@@ -286,13 +286,14 @@ class DrawingState extends ChangeNotifier {
       }
       logicalBounds = Rect.fromLTRB(minX, minY, maxX, maxY);
     } else if (shape is CircleShape) {
+      // For Circle, logical bounds should be the square that contains it
       logicalBounds = Rect.fromCircle(
         center: shape.startPoint,
         radius: shape.radius,
       );
-    } else if (shape is SquareShape) {
-      logicalBounds = shape.rect;
     } else if (shape is EllipseShape) {
+      logicalBounds = shape.rect;
+    } else if (shape is SquareShape) {
       logicalBounds = shape.rect;
     } else if (shape is RectangleShape) {
       logicalBounds = shape.rect;

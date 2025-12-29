@@ -51,7 +51,7 @@ class ToolbarMobile extends StatelessWidget {
                     ),
                     _buildToolButton(
                       context,
-                      icon: Icons.circle_outlined,
+                      icon: Icons.fiber_manual_record,
                       label: 'Point',
                       isSelected: drawingState.currentTool == ShapeType.point,
                       onTap: () => drawingState.setTool(ShapeType.point),
@@ -65,14 +65,14 @@ class ToolbarMobile extends StatelessWidget {
                     ),
                     _buildToolButton(
                       context,
-                      icon: Icons.circle,
+                      icon: Icons.radio_button_unchecked,
                       label: 'Circle',
                       isSelected: drawingState.currentTool == ShapeType.circle,
                       onTap: () => drawingState.setTool(ShapeType.circle),
                     ),
                     _buildToolButton(
                       context,
-                      icon: Icons.panorama_fish_eye,
+                      icon: Icons.vignette_outlined,
                       label: 'Ellipse',
                       isSelected: drawingState.currentTool == ShapeType.ellipse,
                       onTap: () => drawingState.setTool(ShapeType.ellipse),

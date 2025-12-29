@@ -73,7 +73,7 @@ class CanvasPainter extends CustomPainter {
       final corner = corners[i];
       // Highlight active handle with larger size
       final isActive = activeHandleIndex == i;
-      final handleSize = isActive ? 8.0 : 6.0;
+      final handleSize = isActive ? 14.0 : 10.0;
 
       canvas.drawCircle(corner, handleSize, handlePaint);
       canvas.drawCircle(

@@ -22,8 +22,8 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
   Offset? _dragStartOffset;
   Rect? _originalShapeBounds;
 
-  // Hit detection radius for corner handles (20px for mobile-friendly)
-  static const double _handleHitRadius = 20.0;
+  // Hit detection radius for corner handles (increased for better usability)
+  static const double _handleHitRadius = 35.0;
 
   @override
   void initState() {
