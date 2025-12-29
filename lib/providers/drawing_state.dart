@@ -7,8 +7,9 @@ class DrawingState extends ChangeNotifier {
   // List of all drawn shapes
   final List<Shape> _shapes = [];
 
-  // Stack for redo functionality
-  final List<Shape> _redoStack = [];
+  // Stacks for undo/redo functionality (snapshots of the entire canvas)
+  final List<List<Shape>> _undoStack = [];
+  final List<List<Shape>> _redoStack = [];
 
   // Current tool being used
   ShapeType _currentTool = ShapeType.line;
@@ -34,7 +35,7 @@ class DrawingState extends ChangeNotifier {
   Shape? get previewShape => _previewShape;
   Shape? get selectedShape => _selectedShape;
 
-  bool get canUndo => _shapes.isNotEmpty;
+  bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
   bool get hasSelection => _selectedShape != null;
 
@@ -63,9 +64,22 @@ class DrawingState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Save current state to undo stack
+  void _saveToUndoStack() {
+    _undoStack.add(List.from(_shapes));
+    _redoStack.clear();
+  }
+
+  /// Prepare for an action that will modify existing shapes (like move/resize)
+  void prepareForAction() {
+    _saveToUndoStack();
+  }
+
   /// Start drawing a new shape
   void startDrawing(Offset point) {
-    if (_currentTool == ShapeType.select) return;
+    if (_currentTool == ShapeType.select ||
+        _currentTool == ShapeType.paintBucket)
+      return;
 
     final id =
         DateTime.now().millisecondsSinceEpoch.toString() +
@@ -98,9 +112,9 @@ class DrawingState extends ChangeNotifier {
   /// Finish drawing and add the shape to the list
   void finishDrawing() {
     if (_previewShape != null) {
+      _saveToUndoStack();
       _shapes.add(_previewShape!);
       _previewShape = null;
-      _redoStack.clear(); // Clear redo stack when new action is performed
       notifyListeners();
     }
   }
@@ -200,6 +214,29 @@ class DrawingState extends ChangeNotifier {
     }
   }
 
+  /// Fill a shape at the given point with the current fill color
+  void fillShapeAt(Offset point) {
+    // Search from top to bottom (reverse order) to find the topmost shape
+    for (int i = _shapes.length - 1; i >= 0; i--) {
+      final shape = _shapes[i];
+      if (shape.containsPoint(point)) {
+        // Only fill closed shapes, not lines or freehand drawings
+        if (shape is CircleShape ||
+            shape is SquareShape ||
+            shape is RectangleShape ||
+            shape is EllipseShape) {
+          _saveToUndoStack();
+
+          // Update the shape's fill color using copyWith
+          _shapes[i] = shape.copyWith(fillColor: _fillColor);
+
+          notifyListeners();
+          return; // Only fill the topmost shape
+        }
+      }
+    }
+  }
+
   /// Deselect all shapes
   void deselectAll() {
     if (_selectedShape != null) {
@@ -212,9 +249,9 @@ class DrawingState extends ChangeNotifier {
   /// Delete the selected shape
   void deleteSelected() {
     if (_selectedShape != null) {
-      _shapes.remove(_selectedShape);
+      _saveToUndoStack();
+      _shapes.removeWhere((s) => s.id == _selectedShape!.id);
       _selectedShape = null;
-      _redoStack.clear();
       notifyListeners();
     }
   }
@@ -494,16 +531,21 @@ class DrawingState extends ChangeNotifier {
 
   /// Save transform snapshot for undo (called after move/resize completes)
   void saveTransformSnapshot() {
-    // The current state is already in the shapes list
-    // Clear redo stack when new transform is performed
-    _redoStack.clear();
+    // Redo stack is already cleared by _saveToUndoStack called at start of transform
+    notifyListeners();
   }
 
   /// Undo the last action
   void undo() {
-    if (_shapes.isNotEmpty) {
-      final lastShape = _shapes.removeLast();
-      _redoStack.add(lastShape);
+    if (_undoStack.isNotEmpty) {
+      // Save current state to redo stack before reverting
+      _redoStack.add(List.from(_shapes));
+
+      // Revert to last saved state
+      final previousState = _undoStack.removeLast();
+      _shapes.clear();
+      _shapes.addAll(previousState);
+
       deselectAll();
       notifyListeners();
     }
@@ -512,8 +554,14 @@ class DrawingState extends ChangeNotifier {
   /// Redo the last undone action
   void redo() {
     if (_redoStack.isNotEmpty) {
-      final shape = _redoStack.removeLast();
-      _shapes.add(shape);
+      // Save current state to undo stack before re-applying
+      _undoStack.add(List.from(_shapes));
+
+      // Re-apply last undone state
+      final nextState = _redoStack.removeLast();
+      _shapes.clear();
+      _shapes.addAll(nextState);
+
       notifyListeners();
     }
   }
@@ -521,8 +569,8 @@ class DrawingState extends ChangeNotifier {
   /// Clear all shapes
   void clearAll() {
     if (_shapes.isNotEmpty) {
+      _saveToUndoStack();
       _shapes.clear();
-      _redoStack.clear();
       deselectAll();
       notifyListeners();
     }

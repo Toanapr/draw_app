@@ -91,6 +91,13 @@ class ToolbarDesktop extends StatelessWidget {
             isSelected: drawingState.currentTool == ShapeType.rectangle,
             onTap: () => drawingState.setTool(ShapeType.rectangle),
           ),
+          _buildToolButton(
+            context,
+            icon: Icons.format_color_fill,
+            label: 'Fill',
+            isSelected: drawingState.currentTool == ShapeType.paintBucket,
+            onTap: () => drawingState.setTool(ShapeType.paintBucket),
+          ),
 
           const Divider(height: 24),
 

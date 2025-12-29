@@ -14,6 +14,7 @@ enum ShapeType {
   ellipse,
   square,
   rectangle,
+  paintBucket,
 }
 
 /// Abstract base class for all drawable shapes
@@ -50,6 +51,17 @@ abstract class Shape {
 
   /// Get the shape type
   ShapeType get type;
+
+  /// Create a copy of the shape with updated properties
+  Shape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  });
 
   /// Deserialize a shape from bytes
   static Shape? fromBytes(Uint8List bytes, int offset) {
@@ -169,6 +181,26 @@ class PointShape extends Shape {
   ShapeType get type => ShapeType.point;
 
   @override
+  PointShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return PointShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
+
+  @override
   void draw(Canvas canvas) {
     final paint = Paint()
       ..color = strokeColor
@@ -207,6 +239,26 @@ class LineShape extends Shape {
 
   @override
   ShapeType get type => ShapeType.line;
+
+  @override
+  LineShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return LineShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
 
   @override
   void draw(Canvas canvas) {
@@ -263,6 +315,26 @@ class CircleShape extends Shape {
   @override
   ShapeType get type => ShapeType.circle;
 
+  @override
+  CircleShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return CircleShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
+
   double get radius => (endPoint - startPoint).distance;
 
   @override
@@ -318,6 +390,26 @@ class EllipseShape extends Shape {
 
   @override
   ShapeType get type => ShapeType.ellipse;
+
+  @override
+  EllipseShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return EllipseShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
 
   Rect get rect => Rect.fromPoints(startPoint, endPoint);
 
@@ -381,6 +473,26 @@ class SquareShape extends Shape {
 
   @override
   ShapeType get type => ShapeType.square;
+
+  @override
+  SquareShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return SquareShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
 
   Rect get rect {
     final side = max(
@@ -446,6 +558,26 @@ class RectangleShape extends Shape {
 
   @override
   ShapeType get type => ShapeType.rectangle;
+
+  @override
+  RectangleShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+  }) {
+    return RectangleShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
 
   Rect get rect => Rect.fromPoints(startPoint, endPoint);
 
@@ -547,6 +679,28 @@ class FreehandShape extends Shape {
 
   @override
   ShapeType get type => ShapeType.pencil;
+
+  @override
+  FreehandShape copyWith({
+    String? id,
+    Color? strokeColor,
+    Color? fillColor,
+    double? strokeWidth,
+    Offset? startPoint,
+    Offset? endPoint,
+    bool? isSelected,
+    List<Offset>? points,
+  }) {
+    return FreehandShape(
+      id: id ?? this.id,
+      strokeColor: strokeColor ?? this.strokeColor,
+      fillColor: fillColor ?? this.fillColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      startPoint: startPoint ?? this.startPoint,
+      endPoint: endPoint ?? this.endPoint,
+      points: points ?? this.points,
+    )..isSelected = isSelected ?? this.isSelected;
+  }
 
   @override
   void draw(Canvas canvas) {

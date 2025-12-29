@@ -113,10 +113,12 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
   /// Handle tap events (for selection)
   void _handleTap(TapDownDetails details, DrawingState drawingState) {
-    // Only handle taps in Select mode
+    final localPosition = details.localPosition;
+
     if (drawingState.currentTool == ShapeType.select) {
-      final localPosition = details.localPosition;
       drawingState.selectShapeAt(localPosition);
+    } else if (drawingState.currentTool == ShapeType.paintBucket) {
+      drawingState.fillShapeAt(localPosition);
     }
   }
 
@@ -154,6 +156,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
         if (handleIndex != null) {
           // Starting resize operation
+          drawingState.prepareForAction();
           setState(() {
             _isDragging = true;
             _activeHandleIndex = handleIndex;
@@ -162,6 +165,7 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
           });
         } else if (bounds.contains(localPosition)) {
           // Starting move operation (dragging shape body)
+          drawingState.prepareForAction();
           setState(() {
             _isDragging = true;
             _activeHandleIndex = null;
