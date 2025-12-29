@@ -6,8 +6,18 @@ class CanvasPainter extends CustomPainter {
   final List<Shape> shapes;
   final Shape? previewShape;
   final Shape? selectedShape;
+  final int? activeHandleIndex;
+  final bool isDragging;
+  final Offset? cursorPosition;
 
-  CanvasPainter({required this.shapes, this.previewShape, this.selectedShape});
+  CanvasPainter({
+    required this.shapes,
+    this.previewShape,
+    this.selectedShape,
+    this.activeHandleIndex,
+    this.isDragging = false,
+    this.cursorPosition,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -26,6 +36,11 @@ class CanvasPainter extends CustomPainter {
       canvas.saveLayer(null, Paint()..color = Colors.white.withOpacity(0.7));
       previewShape!.draw(canvas);
       canvas.restore();
+    }
+
+    // Draw overlay information during drag operations
+    if (isDragging && cursorPosition != null && selectedShape != null) {
+      _drawDragOverlay(canvas, selectedShape!);
     }
   }
 
@@ -46,15 +61,20 @@ class CanvasPainter extends CustomPainter {
       ..color = Colors.blue
       ..style = PaintingStyle.fill;
 
-    final handleSize = 6.0;
+    // Corners: 0=topLeft, 1=topRight, 2=bottomLeft, 3=bottomRight
     final corners = [
-      bounds.topLeft,
-      bounds.topRight,
-      bounds.bottomLeft,
-      bounds.bottomRight,
+      bounds.topLeft, // index 0
+      bounds.topRight, // index 1
+      bounds.bottomLeft, // index 2
+      bounds.bottomRight, // index 3
     ];
 
-    for (final corner in corners) {
+    for (int i = 0; i < corners.length; i++) {
+      final corner = corners[i];
+      // Highlight active handle with larger size
+      final isActive = activeHandleIndex == i;
+      final handleSize = isActive ? 8.0 : 6.0;
+
       canvas.drawCircle(corner, handleSize, handlePaint);
       canvas.drawCircle(
         corner,
@@ -65,6 +85,64 @@ class CanvasPainter extends CustomPainter {
           ..strokeWidth = 1.5,
       );
     }
+  }
+
+  /// Draw overlay information during drag operations
+  void _drawDragOverlay(Canvas canvas, Shape shape) {
+    if (cursorPosition == null) return;
+
+    final bounds = shape.getBounds();
+    String overlayText;
+
+    if (activeHandleIndex != null) {
+      // Resizing - show width × height
+      overlayText =
+          '${bounds.width.toStringAsFixed(0)} × ${bounds.height.toStringAsFixed(0)}';
+    } else {
+      // Moving - show x, y position
+      overlayText =
+          '${bounds.center.dx.toStringAsFixed(0)}, ${bounds.center.dy.toStringAsFixed(0)}';
+    }
+
+    // Create text painter
+    final textSpan = TextSpan(
+      text: overlayText,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+
+    // Position overlay 20px offset from cursor
+    final overlayPosition = cursorPosition! + const Offset(20, 20);
+
+    // Draw semi-transparent background
+    final backgroundRect = Rect.fromLTWH(
+      overlayPosition.dx - 4,
+      overlayPosition.dy - 4,
+      textPainter.width + 8,
+      textPainter.height + 8,
+    );
+
+    final backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.7)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(backgroundRect, const Radius.circular(4)),
+      backgroundPaint,
+    );
+
+    // Draw text
+    textPainter.paint(canvas, overlayPosition);
   }
 
   /// Draw a dashed rectangle
@@ -152,6 +230,9 @@ class CanvasPainter extends CustomPainter {
   bool shouldRepaint(covariant CanvasPainter oldDelegate) {
     return oldDelegate.shapes != shapes ||
         oldDelegate.previewShape != previewShape ||
-        oldDelegate.selectedShape != selectedShape;
+        oldDelegate.selectedShape != selectedShape ||
+        oldDelegate.activeHandleIndex != activeHandleIndex ||
+        oldDelegate.isDragging != isDragging ||
+        oldDelegate.cursorPosition != cursorPosition;
   }
 }

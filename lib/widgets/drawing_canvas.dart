@@ -16,6 +16,15 @@ class DrawingCanvas extends StatefulWidget {
 class _DrawingCanvasState extends State<DrawingCanvas> {
   final FocusNode _focusNode = FocusNode();
 
+  // Drag state for move/resize operations
+  bool _isDragging = false;
+  int? _activeHandleIndex; // null = dragging shape body, 0-3 = corner handles
+  Offset? _dragStartOffset;
+  Rect? _originalShapeBounds;
+
+  // Hit detection radius for corner handles (20px for mobile-friendly)
+  static const double _handleHitRadius = 20.0;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +59,9 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
               shapes: drawingState.shapes,
               previewShape: drawingState.previewShape,
               selectedShape: drawingState.selectedShape,
+              activeHandleIndex: _activeHandleIndex,
+              isDragging: _isDragging,
+              cursorPosition: _dragStartOffset,
             ),
             child: const SizedBox.expand(),
           ),
@@ -108,35 +120,104 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
     }
   }
 
+  /// Get the index of the corner handle at the given position
+  /// Returns 0-3 for corners (topLeft, topRight, bottomLeft, bottomRight)
+  /// Returns null if not hitting any handle
+  int? _getHandleIndexAt(Offset position, Rect bounds) {
+    final corners = [
+      bounds.topLeft,
+      bounds.topRight,
+      bounds.bottomLeft,
+      bounds.bottomRight,
+    ];
+
+    for (int i = 0; i < corners.length; i++) {
+      if ((position - corners[i]).distance <= _handleHitRadius) {
+        return i;
+      }
+    }
+
+    return null;
+  }
+
   /// Handle pan start (start drawing)
   void _handlePanStart(DragStartDetails details, DrawingState drawingState) {
-    // Don't start drawing in Select mode
+    final localPosition = details.localPosition;
+
+    // Handle selection mode with dragging
     if (drawingState.currentTool == ShapeType.select) {
+      if (drawingState.selectedShape != null) {
+        final bounds = drawingState.selectedShape!.getBounds();
+
+        // Check if tap is on a corner handle
+        final handleIndex = _getHandleIndexAt(localPosition, bounds);
+
+        if (handleIndex != null) {
+          // Starting resize operation
+          setState(() {
+            _isDragging = true;
+            _activeHandleIndex = handleIndex;
+            _dragStartOffset = localPosition;
+            _originalShapeBounds = bounds;
+          });
+        } else if (bounds.contains(localPosition)) {
+          // Starting move operation (dragging shape body)
+          setState(() {
+            _isDragging = true;
+            _activeHandleIndex = null;
+            _dragStartOffset = localPosition;
+            _originalShapeBounds = bounds;
+          });
+        }
+      }
       return;
     }
 
-    final localPosition = details.localPosition;
+    // Normal drawing mode
     drawingState.startDrawing(localPosition);
   }
 
   /// Handle pan update (continue drawing)
   void _handlePanUpdate(DragUpdateDetails details, DrawingState drawingState) {
-    // Don't draw in Select mode
-    if (drawingState.currentTool == ShapeType.select) {
+    final localPosition = details.localPosition;
+
+    // Handle selection mode dragging
+    if (drawingState.currentTool == ShapeType.select && _isDragging) {
+      if (_activeHandleIndex != null) {
+        // Resize operation
+        drawingState.resizeSelectedShape(_activeHandleIndex!, localPosition);
+      } else {
+        // Move operation
+        final delta = localPosition - _dragStartOffset!;
+        drawingState.moveSelectedShape(delta);
+        _dragStartOffset = localPosition; // Update for next delta
+      }
+
+      setState(() {}); // Update cursor position for overlay
       return;
     }
 
-    final localPosition = details.localPosition;
+    // Normal drawing mode
     drawingState.updateDrawing(localPosition);
   }
 
   /// Handle pan end (finish drawing)
   void _handlePanEnd(DragEndDetails details, DrawingState drawingState) {
-    // Don't finish drawing in Select mode
-    if (drawingState.currentTool == ShapeType.select) {
+    // Handle selection mode drag end
+    if (drawingState.currentTool == ShapeType.select && _isDragging) {
+      // Save undo snapshot after move/resize completes
+      drawingState.saveTransformSnapshot();
+
+      setState(() {
+        _isDragging = false;
+        _activeHandleIndex = null;
+        _dragStartOffset = null;
+        _originalShapeBounds = null;
+      });
       return;
     }
 
+    // Normal drawing mode
     drawingState.finishDrawing();
   }
 }
