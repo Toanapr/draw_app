@@ -8,7 +8,7 @@
 *   **23120171** - Đặng Ngọc Tiên
 *   **23120175** - Huỳnh Thái Toàn
 
-🎬 **Video Demo:** [Đang cập nhật...]
+🎬 **Video Demo:** https://youtu.be/KZ3spciqOIk
 
 ## 📝 Tổng quan
 
