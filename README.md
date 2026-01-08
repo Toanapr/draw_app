@@ -43,12 +43,13 @@ Ngoài các yêu cầu cơ bản, ứng dụng còn tích hợp các tính năng
 2.  **Vẽ tự do (Pencil):** Hỗ trợ công cụ bút chì để vẽ các đường nét tự do.
 3.  **Chọn và Di chuyển đối tượng:**
     *   Công cụ **Select** cho phép chọn các hình đã vẽ trên canvas.
-    *   Hỗ trợ di chuyển hoặc thay đổi thuộc tính của đối tượng sau khi vẽ.
-4.  **Chế độ lưới (Grid View):** Hiển thị lưới tọa độ giúp căn chỉnh các đối tượng chính xác hơn.
-5.  **Đổ màu (Paint Bucket):** Công cụ tô màu nhanh cho các vùng khép kín.
-6.  **Giao diện tối/sáng (Dark/Light Mode):** Tự động thay đổi theo hệ thống hoặc tùy chỉnh thủ công, lưu lại trạng thái qua `SharedPreferences`.
-7.  **Thiết kế đáp ứng (Responsive Design):** Giao diện tối ưu hóa riêng biệt cho máy tính (Desktop) và điện thoại (Mobile).
-8.  **Quản lý quyền (Permissions):** Xử lý quyền truy cập bộ nhớ thông minh trên Android (bao gồm cả Android 13+).
+    *   Hỗ trợ di chuyển đối tượng sau khi vẽ.
+4.  **Phóng to/Thu nhỏ hình (Scale):** Hỗ trợ kéo giãn hoặc thu nhỏ hình đã vẽ bằng cách kéo 4 góc của hình, cho phép tùy chỉnh kích thước một cách trực quan và linh hoạt.
+5.  **Chế độ lưới (Grid View):** Hiển thị lưới tọa độ giúp căn chỉnh các đối tượng chính xác hơn.
+6.  **Đổ màu (Paint Bucket):** Công cụ tô màu nhanh cho các vùng khép kín.
+7.  **Giao diện tối/sáng (Dark/Light Mode):** Tự động thay đổi theo hệ thống hoặc tùy chỉnh thủ công, lưu lại trạng thái qua `SharedPreferences`.
+8.  **Thiết kế đáp ứng (Responsive Design):** Giao diện tối ưu hóa riêng biệt cho máy tính (Desktop) và điện thoại (Mobile).
+9.  **Quản lý quyền (Permissions):** Xử lý quyền truy cập bộ nhớ thông minh trên Android (bao gồm cả Android 13+).
 
 ## 🛠 Công nghệ sử dụng
 
